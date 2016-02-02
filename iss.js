@@ -45,7 +45,7 @@ prompt.get( ['location'], function(err, result) {
                 console.log("User latitude: " + truncate(userLat));
                 console.log("User longitude: " + truncate(userLong));
                 
-                getDistanceFromISS(userLat, userLong);
+                getDistanceFromISS(userLat, userLong, useDistance);
             }
             else {
                 console.log("There was a problem. \nError: " + err + "\nStatus: " + response.statusCode);
@@ -54,7 +54,7 @@ prompt.get( ['location'], function(err, result) {
     );    
 });
 
-function getDistanceFromISS (userLat, userLong) {
+function getDistanceFromISS (userLat, userLong, callback) {
     request("http://api.open-notify.org/iss-now.json", function(err, response, body) {
         if (!err && response.statusCode === 200) {
             var data = JSON.parse(body);
@@ -64,10 +64,15 @@ function getDistanceFromISS (userLat, userLong) {
             console.log("The position of the ISS is...\nLatitude: " + truncate(issLat) + "\nLongitude: " + truncate(issLong)); 
             
             var distanceFromISS = haversine(userLat, issLat, userLong, issLong);
-            console.log("Your distance from the ISS is " + truncate(distanceFromISS/1000) + " kilometers.");
+            
+            callback(distanceFromISS);
         }
         else {
             console.log("There was a problem. \nError: " + err + "\nStatus: " + response.statusCode);
         }
     });
+}
+
+function useDistance (distance) {
+    console.log("Your distance from the ISS is " + truncate(distance/1000) + " kilometers.");
 }
